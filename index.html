@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LoanCalc Pro — คำนวณเงินกู้</title>
+
+  <!-- ฟอนต์ Bai Jamjuree -->
+  <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+<script defer src="js/ui.js"></script>
+<script defer src="js/storage.js"></script>
+<script defer src="js/calc.js"></script>
+
+</head>
+
+<body>
+  <!-- 🔝 Navbar -->
+  <nav class="navbar">
+    <h1>LoanCalc Pro</h1>
+    <a href="customers.html">ลูกค้า</a>
+  </nav>
+
+  <!-- 🎯 ฟอร์มคำนวณ -->
+  <main id="calc-form">
+    <h2>คำนวณเงินกู้</h2>
+
+    <div class="form-group">
+      <label>ยอดเงินกู้ (บาท)</label>
+      <input type="number" id="loanAmount" placeholder="เช่น 100000" inputmode="decimal">
+    </div>
+<!-- 🌟 อัตราดอกเบี้ย -->
+<div class="form-group">
+  <label>อัตราดอกเบี้ย</label>
+  <div class="interest-row">
+    <input type="number" id="interestRate"
+           placeholder="%"
+           min="0" max="99" step="0.01"
+           inputmode="decimal">
+
+    <select id="interestType">
+      <option value="flat">คงที่</option>
+      <option value="amortized">ลดต้นลดดอก</option>
+    </select>
+
+    <select id="ratePeriod">
+      <option value="day">ต่อวัน</option>
+      <option value="week" selected>ต่อสัปดาห์</option>
+      <option value="month">ต่อเดือน</option>
+      <option value="year">ต่อปี</option>
+    </select>
+  </div>
+</div>
+
+    <div class="form-group">
+      <label>จำนวนงวด</label>
+      <input type="number" id="term" placeholder="เช่น 12" inputmode="numeric">
+    </div>
+
+    <div class="form-group">
+      <label>วันที่เริ่มงวดแรก</label>
+      <input type="date" id="startDate">
+    </div>
+
+    <!-- 🧮 ปุ่มคำนวณ (ใหญ่สุด เด่นสุด) -->
+    <div class="button-row single">
+      <button id="btnCalc" class="primary-big">คำนวณเลย</button>
+    </div>
+
+    <!-- 🧾 ปุ่มบันทึก + รีเซ็ต -->
+    <div class="button-row">
+      <button id="btnSaveLoan" class="success">บันทึกลูกค้า</button>
+      <button id="btnReset" class="danger">รีเซ็ต</button>
+    </div>
+  </main>
+
+  <!-- 📊 ตารางผลลัพธ์ -->
+  <section id="result-section" class="hidden">
+    <h2>ตารางผ่อนชำระ</h2>
+    <div id="summary"></div>
+    <table id="resultTable">
+      <thead>
+        <tr>
+          <th>งวด</th>
+          <th>วันที่ครบกำหนด</th>
+          <th>เงินต้น</th>
+          <th>ดอกเบี้ย</th>
+          <th>ยอดรวม</th>
+          <th>คงเหลือ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- 🎨 Custom Dialog (เราจะทำในขั้นตอนถัดไป) -->
+  <div id="dialog" class="dialog hidden">
+    <div class="dialog-box">
+      <h3 id="dialog-title">ยืนยันการทำรายการ</h3>
+      <p id="dialog-message">คุณแน่ใจหรือไม่ว่าจะดำเนินการนี้?</p>
+      <div class="dialog-buttons">
+        <button id="dialog-cancel" class="secondary">ยกเลิก</button>
+        <button id="dialog-confirm">ตกลง</button>
+      </div>
+    </div>
+  </div>
+  <!-- 💾 Dialog บันทึกลูกค้า -->
+<div id="dialog-save" class="dialog hidden">
+  <div class="dialog-box large">
+    <h3>บันทึกลูกค้า</h3>
+
+    <div class="form-group">
+      <label>เลือกลูกค้าเดิม</label>
+      <select id="existingCustomer">
+        <option value="new" selected>➕ เพิ่มลูกค้าใหม่</option>
+      </select>
+    </div>
+
+    <div id="newCustomerFields">
+      <div class="form-group">
+        <label>ชื่อ (จำเป็น)</label>
+        <input type="text" id="custName" placeholder="เช่น นายเอ">
+      </div>
+
+      <div class="form-group">
+        <label>เบอร์โทร</label>
+        <input type="tel" id="custPhone" placeholder="เช่น 0812345678">
+      </div>
+
+      <div class="form-group">
+        <label>ที่อยู่</label>
+        <textarea id="custAddress" rows="2" placeholder="ไม่จำเป็นต้องกรอก"></textarea>
+      </div>
+    </div>
+
+    <div class="dialog-buttons">
+      <button id="cancelSave" class="secondary">ยกเลิก</button>
+      <button id="confirmSave" class="primary-big">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+
+  <footer>
+    <p>LoanCalc Pro © 2025</p>
+  </footer>
+</body>
+</html>
