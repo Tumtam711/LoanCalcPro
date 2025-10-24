@@ -190,6 +190,52 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+/* ==================================
+   💾 Auto Save / Restore Form
+================================== */
+const FORM_KEY = "loanCalcPro_form";
+
+function saveFormState() {
+  const data = {
+    loanAmount: document.getElementById("loanAmount").value,
+    interestRate: document.getElementById("interestRate").value,
+    interestType: document.getElementById("interestType").value,
+    ratePeriod: document.getElementById("ratePeriod").value,
+    term: document.getElementById("term").value,
+    startDate: document.getElementById("startDate").value,
+  };
+  localStorage.setItem(FORM_KEY, JSON.stringify(data));
+}
+
+function loadFormState() {
+  const data = localStorage.getItem(FORM_KEY);
+  if (!data) return;
+  try {
+    const f = JSON.parse(data);
+    document.getElementById("loanAmount").value = f.loanAmount || "";
+    document.getElementById("interestRate").value = f.interestRate || "";
+    document.getElementById("interestType").value = f.interestType || "flat";
+    document.getElementById("ratePeriod").value = f.ratePeriod || "week";
+    document.getElementById("term").value = f.term || "";
+    document.getElementById("startDate").value = f.startDate || "";
+  } catch (e) {
+    console.warn("โหลดฟอร์มไม่สำเร็จ", e);
+  }
+}
+
+function clearFormState() {
+  localStorage.removeItem(FORM_KEY);
+}
+
+/* 🎯 ผูก event อัตโนมัติ */
+document.addEventListener("DOMContentLoaded", () => {
+  loadFormState();
+
+  const inputs = document.querySelectorAll(
+    "#loanAmount, #interestRate, #interestType, #ratePeriod, #term, #startDate"
+  );
+  inputs.forEach((el) => el.addEventListener("input", saveFormState));
+});
 
 /* ===========================
    ดอกเบี้ยคงที่ (Flat)
