@@ -1,0 +1,120 @@
+/* LoanCalc Pro — Final UI (Mobile First) */
+
+* { box-sizing: border-box; font-family: "Bai Jamjuree", sans-serif; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; background: #f7f9fb; color: #222; font-size: 15px; }
+
+.topbar { background: linear-gradient(135deg, #007bff, #00b4d8); color: #fff; text-align: center; padding: 12px 8px; box-shadow: 0 2px 5px rgba(0,0,0,.1); }
+.topbar h1 { margin: 0; font-size: 1.5rem; font-weight: 600; letter-spacing: .3px; }
+
+.toolbar { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 10px; }
+.search-bar input { flex:1; max-width: 480px; padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; outline: none; }
+.search-bar input:focus { border-color: #007bff; box-shadow: 0 0 4px rgba(0,123,255,.25); }
+
+.action-bar { text-align: center; }
+.primary-big { font-size: 18px; font-weight: 900; padding: 12px 20px; border-radius: 12px; width: 92%;  background: linear-gradient(135deg, #f5fcff, #f7edde); color: #0095ff; border: none; cursor: pointer; }
+
+button { border: none; border-radius: 10px; padding: 8px 14px; font-size: .95rem; cursor: pointer; transition: transform .15s ease, box-shadow .2s ease; }
+button:hover { transform: scale(1.05); }
+button.primary { background: linear-gradient(135deg,#00ca14,#00bb03); color: #fff; }
+button.secondary { background: #ddd; color: #333; }
+button.info { background: #1e90ff; color: #fff; }
+button.success { background: #2ecc71; color: #fff; }
+button.warn { background: #ffb347; color: #222; }
+button.danger { background: #e74c3c; color: #fff; }
+
+#customerList { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+.customer-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 5px rgba(0,0,0,.08); overflow: hidden; transition: all .25s ease; }
+.customer-card.open { border: 2px solid #007bff; }
+.card-main { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.card-main:hover{ background:#f0f7ff; }
+.left h3 { margin: 0; font-size: 1.05rem; }
+.left p { margin: 2px 0 0; color: #666; }
+.stats { text-align: right; }
+.stats div { font-size: .92rem; }
+
+.card-expand { background: #f8fafc; padding: 10px 14px; border-top: 1px solid #e3e8ef; }
+.hidden { display: none !important; }
+
+.cust-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 8px; }
+
+.loan-card { background:#fff; border: 1px solid #e5e7eb; border-radius:10px; padding:10px; margin:8px 0; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+.loan-header { display:flex; flex-wrap:wrap; gap:6px; font-size:.9rem; margin-bottom:8px; }
+.badge { background:#007bff; color:#fff; padding:2px 6px; border-radius:6px; font-size:.8rem; }
+.loan-actions { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+
+.mini-table, .full-history { width:100%; border-collapse: collapse; font-size:.9rem; }
+.mini-table th, .full-history th { background:#007bff; color:#fff; padding:6px; }
+.mini-table td, .full-history td { border-bottom:1px solid #eee; text-align:center; padding:6px; }
+
+.dialog { position: fixed; inset:0; display:none; justify-content:center; align-items:center; background: rgba(0,0,0,.45); z-index:1000; padding:10px; }
+.dialog.show { display:flex; }
+.dialog-box { background:#fff; border-radius:12px; width:92%; max-width:420px; padding:18px; box-shadow:0 6px 16px rgba(0,0,0,.25); animation: pop .25s ease; }
+.dialog-box h3 { margin:0 0 10px; color:#007bff; }
+.dialog-box label{ display:block; font-weight:600; margin:6px 0 3px; }
+.dialog-box input{ width:100%; padding:8px 10px; border-radius:8px; border:1px solid #ccc; margin-bottom:6px; }
+.dialog-buttons { display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
+
+#toastWrap{ position:fixed; bottom:28px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; gap:8px; z-index:2000; pointer-events:none; }
+.toast{ min-width:220px; text-align:center; background:rgba(0,0,0,.85); color:#fff; padding:10px 16px; border-radius:25px; opacity:0; transition:opacity .3s, bottom .3s; font-size:.9rem; }
+.toast.show{ opacity:1; }
+.toast.info{ background: linear-gradient(135deg,#3498db,#2980b9); }
+.toast.success{ background: linear-gradient(135deg,#2ecc71,#27ae60); }
+.toast.warn{ background: linear-gradient(135deg,#f39c12,#e67e22); color:#222; }
+.toast.error,.toast.danger{ background: linear-gradient(135deg,#e74c3c,#c0392b); }
+
+@keyframes pop { from{transform:scale(.95); opacity:0} to{transform:scale(1); opacity:1} }
+
+@media (max-width: 480px){
+  .card-main{ flex-direction:column; align-items:flex-start; gap:4px; }
+  .stats{ text-align:left; }
+  .dialog-buttons{ flex-wrap:wrap; }
+  .dialog-buttons button{ flex:1 1 48%; }
+}
+/* === PATCH: จัดลำดับบิล + เน้นสี (วางท้ายไฟล์) === */
+
+/* บังคับโครง header ของบิล */
+.customer-card .loan-card .loan-header {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+/* บรรทัดแรก: ชื่อบิล กินทั้งแถว */
+.customer-card .loan-card .loan-header .loan-title {
+  order: 0 !important;
+  flex: 1 1 100% !important;
+  font-weight: 800 !important;
+  font-size: 1.05rem !important;
+  color: #007bff !important;
+  margin-bottom: 2px !important;
+}
+
+/* บรรทัดถัดไป: วันที่ → เงินต้น → ดอก% → ดอก(ดู) */
+.customer-card .loan-card .loan-header .badge.start     { order: 1 !important; }
+.customer-card .loan-card .loan-header .badge.principal { order: 2 !important; }
+.customer-card .loan-card .loan-header .badge.rate      { order: 3 !important; }
+.customer-card .loan-card .loan-header .badge.interest  { order: 4 !important; }
+
+/* สี/น้ำหนักให้อ่านง่าย */
+.customer-card .loan-card .loan-header .badge {
+  font-size: 0.92rem !important;
+  padding: 4px 8px !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+}
+
+.customer-card .loan-card .loan-header .badge.start { 
+    background: #d5fcff !important; 
+    color: #2c2c2c !important;     
+} /* วันที่ = เทาเข้มอ่านง่าย */
+.customer-card .loan-card .loan-header .badge.principal { background: #ff0606 !important; } /* ต้น = เขียวเด่น */
+.customer-card .loan-card .loan-header .badge.rate      { background: #3498db !important; } /* ดอก% = ฟ้า */
+.customer-card .loan-card .loan-header .badge.interest  { background: #269dff !important; } /* ดอก(ดู) = ส้ม */
+
+/* กัน style เก่าไปบีบ badge จนเล็กเกิน */
+.customer-card .loan-card .badge {
+  line-height: 1.25 !important;
+}

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>LoanCalc Pro — Final</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <!-- 🔝 Header -->
+    <header class="topbar">
+        <h1>💰 LoanCalc Pro</h1>
+
+        <div class="toolbar top-buttons">
+            <button id="btnSummary" class="info">📈 สรุป</button>
+            <button id="btnSyncUp" class="secondary">☁️ ขึ้น Sheet</button>
+            <button id="btnSyncDown" class="secondary">☁️ ดึงกลับ</button>
+            <span id="syncStatus" class="muted small"></span>
+        </div>
+
+        <div class="toolbar search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อหรือเบอร์..." />
+        </div>
+
+        <!-- ปุ่มเพิ่มลูกค้า ใหญ่ ชัด บนสุดเสมอ -->
+        <div class="toolbar action-bar">
+            <button id="btnAddCustomer" class="primary-big">+เพิ่มลูกค้าใหม่</button>
+        </div>
+    </header>
+
+    <!-- 📋 รายชื่อลูกค้า -->
+    <main id="customerList" class="customer-list"></main>
+
+    <!-- ===========================
+       Templates
+       =========================== -->
+
+    <!-- 🧱 การ์ดลูกค้า + หลายบิล -->
+    <template id="customerCardTpl">
+        <div class="customer-card">
+            <div class="card-main">
+                <div class="left">
+                    <h3 class="cust-name">-</h3>
+                    <p class="cust-phone small">-</p>
+                </div>
+                <div class="right stats">
+                    <div>รวมบิล: <strong class="loan-count">-</strong></div>
+                    <div>ต้นรวม: <strong class="principal-sum">-</strong></div>
+                    <div class="muted">ดอก (10%): <strong class="interest-sum">-</strong></div>
+                </div>
+            </div>
+
+            <div class="card-expand hidden">
+                <div class="loans-wrap" data-role="loans"></div>
+
+                <div class="cust-actions">
+                    <button class="small-btn warn" data-role="add-loan">+ กู้ใหม่ (เพิ่มบิล)</button>
+                    <button class="small-btn danger" data-role="delete-customer">🗑️ ลบลูกค้า</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- 🧾 บิลเดี่ยว -->
+    <template id="loanItemTpl">
+        <div class="loan-card" data-loan-id="">
+            <div class="loan-header">
+                <span class="loan-title"></span>
+                <span class="badge start"></span>
+                <!--<span class="badge rate"></span>-->
+                <span class="badge principal"></span>
+                <span class="badge interest"></span>
+            </div>
+            <div class="loan-actions">
+                <button class="small-btn success" data-role="pay">💵 จ่ายงวด</button>
+                <button class="small-btn info" data-role="topup">✏️ แก้ไขเงินต้น (กู้เพิ่ม)</button>
+                <button class="small-btn" data-role="history">📜 ประวัติ</button>
+                <button class="small-btn danger" data-role="delete-loan">🗑️ ลบบิลนี้</button>
+            </div>
+            <div class="loan-mini-history" data-role="mini-history"></div>
+        </div>
+    </template>
+
+    <!-- ===========================
+       Dialogs
+       =========================== -->
+
+    <!-- 💬 เพิ่มลูกค้า -->
+    <div id="customerDialog" class="dialog hidden">
+        <div class="dialog-box">
+            <h3>➕ เพิ่มลูกค้าใหม่</h3>
+            <label>ชื่อ</label><input type="text" id="custName" />
+            <label>เบอร์โทร (ไม่บังคับ)</label><input type="text" id="custPhone" />
+            <label>ยอดกู้ (บาท)</label><input type="number" id="custAmount" />
+            <label>ดอกเบี้ย (% ต่อรอบ)</label><input type="number" id="custRate" value="10" />
+            <label>วันที่เริ่มกู้</label><input type="date" id="custStartDate" />
+            <div class="dialog-buttons">
+                <button id="customerSave" class="primary">บันทึก</button>
+                <button id="customerCancel" class="secondary">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💬 จ่ายเงิน -->
+    <div id="paymentDialog" class="dialog hidden">
+        <div class="dialog-box">
+            <h3>💵 เพิ่มการจ่าย</h3>
+            <p class="small">ลูกค้า: <b id="payCustName">-</b></p>
+            <p class="small">ต้นคงเหลือ: <b id="payPrincipalRemain">-</b></p>
+            <p class="small">ดอก (10% ของต้น): <b id="payInterestDue">-</b></p>
+            <label>จ่ายดอก (บาท)</label><input type="number" id="payInterest" />
+            <label>จ่ายต้น (บาท)</label><input type="number" id="payPrincipal" />
+            <div class="dialog-buttons">
+                <button id="paymentSave" class="primary">บันทึก</button>
+                <button id="paymentCancel" class="secondary">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💬 กู้ใหม่ (เพิ่มบิลให้ลูกค้าเดิม) -->
+    <div id="loanDialog" class="dialog hidden">
+        <div class="dialog-box">
+            <h3>➕ กู้ใหม่ (บิลใหม่ของลูกค้าเดิม)</h3>
+            <p class="small">ลูกค้า: <b id="loanDlgCustName">-</b></p>
+
+            <label>ยอดกู้ (บาท)</label>
+            <input type="number" id="loanDlgAmount" />
+
+            <label>ดอกเบี้ย (% ต่อรอบ)</label>
+            <input type="number" id="loanDlgRate" value="10" />
+
+            <label>วันที่เริ่มกู้</label>
+            <input type="date" id="loanDlgStart" />
+
+            <div class="dialog-buttons">
+                <button id="loanDlgSave" class="primary">บันทึก</button>
+                <button id="loanDlgCancel" class="secondary">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 💬 Top-up ต้น (แก้ไขเงินต้นในงวดเดิม) -->
+    <div id="topupDialog" class="dialog hidden">
+        <div class="dialog-box">
+            <h3>✏️ แก้ไขเงินต้น (Top-up)</h3>
+            <p class="small">ลูกค้า: <b id="topupCustName">-</b></p>
+            <p class="small">ต้นปัจจุบัน: <b id="topupCurrentPrincipal">-</b></p>
+            <label>เพิ่มต้น (บาท)</label><input type="number" id="topupAmount" />
+            <div class="dialog-buttons">
+                <button id="topupSave" class="primary">บันทึก</button>
+                <button id="topupCancel" class="secondary">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💬 ประวัติ -->
+    <div id="historyDialog" class="dialog hidden">
+        <div class="dialog-box">
+            <h3>📜 ประวัติการจ่าย</h3>
+            <div id="historyWrap"></div>
+            <div class="dialog-buttons">
+                <button id="historyClose" class="secondary">ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💬 สรุป -->
+    <div id="summaryDialog" class="dialog hidden">
+        <div class="dialog-box">
+            <h3>📈 สรุป</h3>
+            <div class="summary-box" id="summaryBox">
+                <p><strong>จำนวนลูกค้า:</strong> <span id="sumCustomers">-</span></p>
+                <p><strong>ปล่อยกู้รวม:</strong> <span id="sumPrincipal">-</span></p>
+                <p><strong>ต้นคงเหลือรวม:</strong> <span id="sumRemain">-</span></p>
+                <p><strong>ดอก :</strong> <span id="sumInterestView">-</span></p>
+            </div>
+            <div class="dialog-buttons">
+                <button id="btnCloseSummary" class="secondary">ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🧱 Toast -->
+    <div id="toastWrap"></div>
+
+    <!-- ===========================
+       Scripts (ห้ามใช้ defer เพื่อเลี่ยง timing)
+       =========================== -->
+    <script src="js/storage.js"></script>
+    <script src="js/logic.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
