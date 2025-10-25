@@ -13,14 +13,6 @@
     <!-- 🔝 Header -->
     <header class="topbar">
         <h1>💰 LoanCalc Pro</h1>
-
-        <div class="toolbar top-buttons">
-            <button id="btnSummary" class="info">📈 สรุป</button>
-            <button id="btnSyncUp" class="secondary">☁️ ขึ้น Sheet</button>
-            <button id="btnSyncDown" class="secondary">☁️ ดึงกลับ</button>
-            <span id="syncStatus" class="muted small"></span>
-        </div>
-
         <div class="toolbar search-bar">
             <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อหรือเบอร์..." />
         </div>
@@ -169,20 +161,44 @@
     </div>
 
     <!-- 💬 สรุป -->
-    <div id="summaryDialog" class="dialog hidden">
-        <div class="dialog-box">
-            <h3>📈 สรุป</h3>
-            <div class="summary-box" id="summaryBox">
-                <p><strong>จำนวนลูกค้า:</strong> <span id="sumCustomers">-</span></p>
-                <p><strong>ปล่อยกู้รวม:</strong> <span id="sumPrincipal">-</span></p>
-                <p><strong>ต้นคงเหลือรวม:</strong> <span id="sumRemain">-</span></p>
-                <p><strong>ดอก :</strong> <span id="sumInterestView">-</span></p>
-            </div>
-            <div class="dialog-buttons">
-                <button id="btnCloseSummary" class="secondary">ปิด</button>
-            </div>
-        </div>
+   <div id="summaryDialog" class="dialog">
+  <div class="dialog-box">
+    <h3>📈 สรุปรายงานกำไรตามช่วงเวลา</h3>
+
+    <div class="summary-range">
+      <label>ตั้งแต่</label>
+      <input type="date" id="sumStart">
+      <label>ถึง</label>
+      <input type="date" id="sumEnd">
+ 
     </div>
+
+    <div class="summary-box">
+      <p><strong>ลูกค้าทั้งหมด:</strong> <span id="sumCustomers">-</span></p>
+      <p><strong>ปล่อยกู้รวม:</strong> ฿<span id="sumPrincipal">-</span></p>
+      <p><strong>ต้นที่ได้รับคืน:</strong> ฿<span id="sumPrincipalPaid">-</span></p>
+      <p><strong>ดอกที่ได้รับ:</strong> ฿<span id="sumInterestPaid">-</span></p>
+      <p><strong>💹 กำไรช่วงนี้:</strong> ฿<span id="sumProfit">-</span></p>
+    </div>
+
+    <div class="dialog-buttons">
+      <button id="btnCloseSummary" class="secondary">ปิด</button>
+    </div>
+  </div>
+</div>
+
+    <!-- 💬 Confirm Dialog -->
+<div id="confirmDialog" class="dialog hidden">
+  <div class="dialog-box">
+    <h3 id="confirmTitle">⚠️ ยืนยันการทำรายการ</h3>
+    <p id="confirmMessage">คุณแน่ใจหรือไม่ที่จะทำรายการนี้?</p>
+    <div class="dialog-buttons">
+      <button id="confirmYes" class="danger">ตกลง</button>
+      <button id="confirmNo" class="secondary">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
 
     <!-- 🧱 Toast -->
     <div id="toastWrap"></div>

@@ -15,6 +15,26 @@ function calcCurrentPrincipal(loan){
   return Math.max(base + topups - paidP, 0);
 }
 
+// ตรวจสอบว่าวันนี้ครบงวดหรือค้างงวดไหม
+function getLoanStatus(loan) {
+  if (!loan) return "normal";
+
+  // วันที่ใช้เป็นจุดเริ่มนับรอบงวด = วันที่จ่ายล่าสุด หรือวันที่กู้
+  const lastDate = (loan.payments && loan.payments.length)
+    ? new Date(loan.payments[loan.payments.length - 1].date)
+    : new Date(loan.startDate);
+
+  const now = new Date();
+  const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+
+  // 🔹 logic การคำนวณงวด
+  if (diffDays > 14) return "overdue2"; // ค้าง 2 งวดขึ้นไป
+  if (diffDays > 7) return "overdue";   // ค้างงวดเดียว
+  if (diffDays === 7) return "due";     // ครบงวดวันนี้
+  return "normal";                      // ปกติ
+}
+
+
 // ใช้โชว์ mini history ตารางสั้น
 function formatThaiDate(iso){
   if(!iso) return "-";
@@ -23,21 +43,35 @@ function formatThaiDate(iso){
 }
 
 // สรุปยอดรวมทั้งระบบ
-function computeSummary(){
-  const all = getAllCustomers();
-  let totalCustomers = all.length;
-  let totalRemain = 0;
-  let totalGiven = 0;
-  let totalInterestView = 0;
+window.computeSummary = function(startDate, endDate) {
+  const data = getAllCustomers();
+  let totalCustomers = data.length;
+  let totalGiven = 0, totalPrincipalPaid = 0, totalInterestPaid = 0;
 
-  all.forEach(c=>{
-    (c.loans||[]).forEach(l=>{
-      const p = calcCurrentPrincipal(l);
-      totalRemain += p;
-      totalGiven += l.basePrincipal + (l.payments||[]).filter(x=>x.kind==="topup").reduce((a,x)=>a+(x.topupAmount||0),0);
-      totalInterestView += calcInterestFromPrincipal(p, l.rate);
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  data.forEach(c => {
+    (c.loans || []).forEach(l => {
+      totalGiven += l.amount || 0;
+
+      (l.payments || []).forEach(p => {
+        const d = new Date(p.date);
+        if (d >= start && d <= end) {
+          totalPrincipalPaid += p.payPrincipal || 0;
+          totalInterestPaid += p.payInterest || 0;
+        }
+      });
     });
   });
 
-  return { totalCustomers, totalRemain, totalGiven, totalInterestView };
-}
+  const totalProfit = totalInterestPaid;
+
+  return {
+    totalCustomers,
+    totalGiven,
+    totalPrincipalPaid,
+    totalInterestPaid,
+    totalProfit
+  };
+};

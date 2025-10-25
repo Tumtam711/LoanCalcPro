@@ -59,8 +59,8 @@
         const curI = calcInterestFromPrincipal(curP, loan.rate);
 
         document.getElementById("payCustName").textContent = cust.name;
-        document.getElementById("payPrincipalRemain").textContent = "฿" + curP.toLocaleString();
-        document.getElementById("payInterestDue").textContent = "฿" + curI.toLocaleString();
+        document.getElementById("payPrincipalRemain").textContent = curP.toLocaleString();
+        document.getElementById("payInterestDue").textContent = curI.toLocaleString();
         document.getElementById("payInterest").value = "";
         document.getElementById("payPrincipal").value = "";
 
@@ -92,7 +92,7 @@
         const loan = (cust.loans || []).find(l => l.id === loanId); if (!loan) return;
         const curP = calcCurrentPrincipal(loan);
         document.getElementById("topupCustName").textContent = cust.name;
-        document.getElementById("topupCurrentPrincipal").textContent = "฿" + curP.toLocaleString();
+        document.getElementById("topupCurrentPrincipal").textContent = curP.toLocaleString();
         document.getElementById("topupAmount").value = "";
         ctxTop = { custId, loanId };
         open(dlgTopup);
@@ -175,14 +175,56 @@
 
     /* สรุป */
     window.openSummaryDialog = function () {
-        const { totalCustomers, totalRemain, totalGiven, totalInterestView } = computeSummary();
-        document.getElementById("sumCustomers").textContent = totalCustomers.toLocaleString();
-        document.getElementById("sumPrincipal").textContent = "฿" + totalGiven.toLocaleString();
-        document.getElementById("sumRemain").textContent = "฿" + totalRemain.toLocaleString();
-        document.getElementById("sumInterestView").textContent = "฿" + totalInterestView.toLocaleString();
-        open(dlgSummary);
-        document.getElementById("btnCloseSummary").onclick = () => close(dlgSummary);
-    };
+  const dlg = document.getElementById("summaryDialog");
+  const today = new Date();
+
+  // คำนวณวันเริ่มต้นและสิ้นสุดเดือนนี้
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+  const startInput = document.getElementById("sumStart");
+  const endInput = document.getElementById("sumEnd");
+
+  // ฟังก์ชันแปลงวันที่
+  function fmt(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  // เซ็ตค่าเริ่มต้น
+  startInput.value = fmt(startOfMonth);
+  endInput.value = fmt(endOfMonth);
+
+  // ฟังก์ชันคำนวณสรุป
+  const refreshSummary = () => {
+    const start = startInput.value;
+    const end = endInput.value;
+    const s = computeSummary(start, end);
+
+    document.getElementById("sumCustomers").textContent = s.totalCustomers.toLocaleString();
+    document.getElementById("sumPrincipal").textContent = s.totalGiven.toLocaleString();
+    document.getElementById("sumPrincipalPaid").textContent = s.totalPrincipalPaid.toLocaleString();
+    document.getElementById("sumInterestPaid").textContent = s.totalInterestPaid.toLocaleString();
+    document.getElementById("sumProfit").textContent = s.totalProfit.toLocaleString();
+  };
+
+  // เรียกครั้งแรกตอนเปิด dialog
+  refreshSummary();
+
+  // ✅ เพิ่ม Event ให้มันคำนวณใหม่ทุกครั้งที่แก้วันที่
+  startInput.addEventListener("change", refreshSummary);
+  endInput.addEventListener("change", refreshSummary);
+
+  // ปุ่มปิด dialog
+  document.getElementById("btnCloseSummary").onclick = () => close(dlg);
+
+  // เปิด dialog
+  open(dlg);
+};
+
+
 
     /* ☁️ Cloud Sync: Google Sheet */
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFqbZrbHJ_YreIFeVZpHJ-fuYrkXjkIUEzuqyt3RoUacrtHyEU-GrdVME2uPlu-rhwfg/exec";
@@ -242,11 +284,34 @@
         const now = new Date();
         return now.toLocaleString("th-TH", { hour: "2-digit", minute: "2-digit" });
     }
-document.addEventListener("DOMContentLoaded", () => {
-  const upBtn = document.getElementById("btnSyncUp");
-  const downBtn = document.getElementById("btnSyncDown");
-  if (upBtn) upBtn.onclick = syncUp;
-  if (downBtn) downBtn.onclick = syncDown;
-});
+    document.addEventListener("DOMContentLoaded", () => {
+        const upBtn = document.getElementById("btnSyncUp");
+        const downBtn = document.getElementById("btnSyncDown");
+        if (upBtn) upBtn.onclick = syncUp;
+        if (downBtn) downBtn.onclick = syncDown;
+    });
+    // ===========================
+    // Custom Confirm Dialog
+    // ===========================
+    window.showConfirm = function (title, message, onConfirm) {
+        const dlg = document.getElementById("confirmDialog");
+        document.getElementById("confirmTitle").textContent = title || "⚠️ ยืนยันการทำรายการ";
+        document.getElementById("confirmMessage").textContent = message || "แน่ใจไหม?";
+
+        open(dlg);
+
+        const yesBtn = document.getElementById("confirmYes");
+        const noBtn = document.getElementById("confirmNo");
+
+        // ล้าง handler เดิมก่อน
+        yesBtn.onclick = null;
+        noBtn.onclick = null;
+
+        yesBtn.onclick = () => {
+            close(dlg);
+            if (typeof onConfirm === "function") onConfirm();
+        };
+        noBtn.onclick = () => close(dlg);
+    };
 
 })();

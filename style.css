@@ -16,17 +16,17 @@ body { margin: 0; background: #f7f9fb; color: #222; font-size: 15px; }
 button { border: none; border-radius: 10px; padding: 8px 14px; font-size: .95rem; cursor: pointer; transition: transform .15s ease, box-shadow .2s ease; }
 button:hover { transform: scale(1.05); }
 button.primary { background: linear-gradient(135deg,#00ca14,#00bb03); color: #fff; }
-button.secondary { background: #ddd; color: #333; }
-button.info { background: #1e90ff; color: #fff; }
+button.secondary { background: #1087f6; font-size: 1.2rem; color: #ffffff; }
+button.info { background: #00c31a; color: #fff; }
 button.success { background: #2ecc71; color: #fff; }
-button.warn { background: #ffb347; color: #222; }
+button.warn { background: #ffb347; color: #ffffff; }
 button.danger { background: #e74c3c; color: #fff; }
 
 #customerList { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
 
 .customer-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 5px rgba(0,0,0,.08); overflow: hidden; transition: all .25s ease; }
 .customer-card.open { border: 2px solid #007bff; }
-.card-main { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.card-main { padding: 10px 14px; display: flex; border-left: 3px solid #3aadff;; justify-content: space-between; align-items: center; cursor: pointer; }
 .card-main:hover{ background:#f0f7ff; }
 .left h3 { margin: 0; font-size: 1.05rem; }
 .left p { margin: 2px 0 0; color: #666; }
@@ -66,7 +66,7 @@ button.danger { background: #e74c3c; color: #fff; }
 @keyframes pop { from{transform:scale(.95); opacity:0} to{transform:scale(1); opacity:1} }
 
 @media (max-width: 480px){
-  .card-main{ flex-direction:column; align-items:flex-start; gap:4px; }
+  .card-main{ flex-direction:column; align-items:flex-start; gap:4px;  }
   .stats{ text-align:left; }
   .dialog-buttons{ flex-wrap:wrap; }
   .dialog-buttons button{ flex:1 1 48%; }
@@ -117,4 +117,35 @@ button.danger { background: #e74c3c; color: #fff; }
 /* กัน style เก่าไปบีบ badge จนเล็กเกิน */
 .customer-card .loan-card .badge {
   line-height: 1.25 !important;
+}
+/* 🔰 Badge สถานะมุมขวาบน */
+.status-badge {
+  position: absolute;
+  top: 10px !important;
+  right: 10px !important;
+font-size: 1.0em !important;
+  font-weight: 900;
+  padding: 6px 12px;
+  border-radius: 12px;
+  color: #fff;
+/*  box-shadow: 0 2px 4px rgba(0, 0, 0, 0); */
+  z-index: 2;
+  letter-spacing: 0.5px;
+}
+.customer-card {
+  position: relative;
+}
+
+/* 💡 สีสามารถเปลี่ยนได้ตามใจ */
+.status-badge.normal { background-color: #777; }
+.status-badge.due { background-color: orange; }
+.status-badge.overdue1 { background-color: red; }
+.status-badge.overdue2 { background-color: darkred; }
+.status-badge.overdue3 { background-color: purple; }
+.status-badge.multiOverdue { background-color: black; animation: pulse 1.5s infinite; }
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
 }
